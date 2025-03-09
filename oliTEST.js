@@ -1,4 +1,8 @@
-// Wait until DOM is ready
+/*******************************************************
+ * VERSION 1
+ * Combined Stage: Animate + images on the same canvas
+ ******************************************************/
+
 document.addEventListener("DOMContentLoaded", () => {
   // Check that AdobeAn is available
   if (!window.AdobeAn || !AdobeAn.getComposition) {
@@ -20,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const stage = new lib.Stage(canvas);
 
   // Make it responsive
-  AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, 
+  AdobeAn.makeResponsive(false, 'both', false, 1, [
+    canvas, 
     document.getElementById("animation_container"), 
     document.getElementById("dom_overlay_container")
   ]);
@@ -66,7 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   loader.loadManifest([
-    { id: "cerberus", src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png" },
-    { id: "oliver",   src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png" }
+    {
+      id: "cerberus",
+      src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png"
+    },
+    {
+      id: "oliver",
+      src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png"
+    }
   ]);
 });
