@@ -7,28 +7,37 @@ lib.properties = {
     opacity: 1.00,
     manifest: [
         {
-            src: "https://cors-anywhere.herokuapp.com/https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png",
+            src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png",
             id: "cerberus_high_inv"
         },
         {
-            src: "https://cors-anywhere.herokuapp.com/https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png",
+            src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png",
             id: "Oliver_expressions_concerned_talk"
         }
     ],
     preloads: []
 };
 
-const img = {}; // Store loaded images
+// Store loaded images
+const img = {};
 
 const loader = new createjs.LoadQueue(false);
+
+// Debug log to check if files are being requested correctly
 loader.addEventListener("fileload", (evt) => {
     if (evt.item.type === "image") {
-        console.log(`Loaded: ${evt.item.src}`); // Debugging line
+        console.log(`✅ Loaded: ${evt.item.src}`);
         img[evt.item.id] = evt.result;
     }
 });
 
+loader.addEventListener("error", (evt) => {
+    console.error(`❌ Failed to load: ${evt.data.src}`);
+});
+
 loader.addEventListener("complete", (evt) => {
+    console.log("✅ All assets loaded successfully.");
+
     const lib = AdobeAn.getComposition(lib.properties.id).getLibrary();
     const ss = AdobeAn.getComposition(lib.properties.id).getSpriteSheet();
     const queue = evt.target;
@@ -44,15 +53,16 @@ loader.addEventListener("complete", (evt) => {
                 images: [queue.getResult(metadata.name)],
                 frames: metadata.frames
             });
-            console.log(`Registered: ${metadata.name}`);
+            console.log(`✅ Registered spritesheet: ${metadata.name}`);
         }
     }
 
-    // Initialize the animation
+    // Initialize animation
     const exportRoot = new lib.oliTEST();
     const stage = new lib.Stage(canvas);
 
     stage.enableMouseOver();
+
     stage.addChild(exportRoot);
     createjs.Ticker.framerate = lib.properties.fps;
     createjs.Ticker.addEventListener("tick", stage);
@@ -61,5 +71,5 @@ loader.addEventListener("complete", (evt) => {
     AdobeAn.compositionLoaded(lib.properties.id);
 });
 
-// Start loading assets
+// Start loading the manifest
 loader.loadManifest(lib.properties.manifest);
