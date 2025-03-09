@@ -1,59 +1,49 @@
 /*******************************************************
- * VERSION 2
- * Single Script Approach: Animate + images
+ * VERSION 3
+ * Two Canvas Setup: Animate in one, custom images in another
  ******************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  if (!window.AdobeAn) {
-    console.error("Adobe Animate library not loaded.");
-    return;
-  }
+  // 1) Animate Composition Setup
   const comp = AdobeAn.getComposition("AA7EF674FD3F4E65AA08A1F0429652EC");
-  if (!comp) {
-    console.error("Composition not found.");
-    return;
-  }
-
+  if (!comp) return console.error("Composition not found.");
   const lib = comp.getLibrary();
-  const canvas = document.getElementById("canvas");
   const exportRoot = new lib.oliTEST();
-  const stage = new lib.Stage(canvas);
+  const stageAnimate = new lib.Stage(document.getElementById("canvasAnimate"));
 
-  stage.enableMouseOver();
+  stageAnimate.addChild(exportRoot);
   createjs.Ticker.framerate = lib.properties.fps;
-  createjs.Ticker.addEventListener("tick", stage);
-
-  stage.addChild(exportRoot);
+  createjs.Ticker.addEventListener("tick", stageAnimate);
 
   AdobeAn.makeResponsive(false, 'both', false, 1, [
-    canvas,
-    document.getElementById("animation_container"),
+    document.getElementById("canvasAnimate"),
+    document.getElementById("animate_container"),
     document.getElementById("dom_overlay_container")
   ]);
   AdobeAn.compositionLoaded(lib.properties.id);
 
-  // Load images with createjs
-  const queue = new createjs.LoadQueue(true);
-  queue.setCrossOrigin("anonymous");
+  // 2) Our own CreateJS stage for images
+  const canvas2 = document.getElementById("canvasImages");
+  const stageImages = new createjs.Stage(canvas2);
 
-  queue.addEventListener("fileload", (evt) => {
-    if (evt.item.type === "image") {
-      console.log("✅ Loaded:", evt.item.src);
-    }
+  // 3) Load images
+  const loader = new createjs.LoadQueue();
+  loader.setCrossOrigin("anonymous");
+
+  loader.addEventListener("complete", () => {
+    console.log("✅ All images loaded");
+
+    const bmp1 = new createjs.Bitmap(loader.getResult("cerberus"));
+    bmp1.x = 50;  bmp1.y = 50;
+    stageImages.addChild(bmp1);
+
+    const bmp2 = new createjs.Bitmap(loader.getResult("oliver"));
+    bmp2.x = 300; bmp2.y = 100;
+    stageImages.addChild(bmp2);
+
+    stageImages.update();
   });
 
-  queue.addEventListener("complete", () => {
-    const cerberus = new createjs.Bitmap(queue.getResult("cerberus"));
-    cerberus.x = 50; cerberus.y = 50;
-    stage.addChild(cerberus);
-
-    const oliver = new createjs.Bitmap(queue.getResult("oliver"));
-    oliver.x = 300; oliver.y = 100;
-    stage.addChild(oliver);
-
-    stage.update();
-  });
-
-  queue.loadManifest([
+  loader.loadManifest([
     {
       id: "cerberus",
       src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png"
