@@ -1,53 +1,37 @@
 /*******************************************************
- * VERSION 6
- * Animate Preload Hook
+ * VERSION 7
+ * No Animate, purely CreateJS for images
  ******************************************************/
-document.addEventListener("DOMContentLoaded", () => {
-  const comp = AdobeAn.getComposition("AA7EF674FD3F4E65AA08A1F0429652EC");
-  if (!comp) {
-    console.error("No composition found!");
-    return;
-  }
-  const lib = comp.getLibrary();
+window.addEventListener("DOMContentLoaded", () => {
+  // 1) Create the stage
+  const stage = new createjs.Stage("myCanvas");
 
-  // If Animate had a preloader, we can push extra items to its manifest
-  if (lib.properties.manifest) {
-    lib.properties.manifest.push(
-      {
-        src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png",
-        id: "cerberus"
-      },
-      {
-        src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png",
-        id: "oliver"
-      }
-    );
-  }
-
-  const loader = new createjs.LoadQueue(false);
-  loader.setCrossOrigin("anonymous");
-  loader.addEventListener("fileload", (evt) => {
-    if (evt.item.type === "image") {
-      comp.getImages()[evt.item.id] = evt.result;
+  // 2) Load images
+  const queue = new createjs.LoadQueue();
+  queue.setCrossOrigin("anonymous");
+  queue.on("complete", handleComplete);
+  queue.loadManifest([
+    {
+      id: "cerberus",
+      src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png"
+    },
+    {
+      id: "oliver",
+      src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png"
     }
-  });
-  
-  loader.addEventListener("complete", () => {
-    // Standard Animate init
-    const exportRoot = new lib.oliTEST();
-    const stage = new lib.Stage(document.getElementById("canvas"));
-    stage.addChild(exportRoot);
+  ]);
 
-    createjs.Ticker.framerate = lib.properties.fps;
-    createjs.Ticker.addEventListener("tick", stage);
+  function handleComplete() {
+    const cerb = new createjs.Bitmap(queue.getResult("cerberus"));
+    cerb.x = 50;
+    cerb.y = 50;
+    stage.addChild(cerb);
 
-    AdobeAn.makeResponsive(false, 'both', false, 1, [
-      document.getElementById("canvas"),
-      document.getElementById("animation_container"),
-      document.getElementById("dom_overlay_container")
-    ]);
-    AdobeAn.compositionLoaded(lib.properties.id);
-  });
+    const oli = new createjs.Bitmap(queue.getResult("oliver"));
+    oli.x = 300;
+    oli.y = 100;
+    stage.addChild(oli);
 
-  loader.loadManifest(lib.properties.manifest || []);
+    stage.update();
+  }
 });
