@@ -18,15 +18,16 @@ lib.properties = {
     preloads: []
 };
 
-// Store loaded images
-const img = {};
+const img = {}; // Store loaded images
 
 const loader = new createjs.LoadQueue(false);
+loader.setCrossOrigin("anonymous"); // Force cross-origin loading
 
 // Debug log to check if files are being requested correctly
 loader.addEventListener("fileload", (evt) => {
     if (evt.item.type === "image") {
         console.log(`✅ Loaded: ${evt.item.src}`);
+        console.log(`✅ Result:`, evt.result);
         img[evt.item.id] = evt.result;
     }
 });
@@ -35,12 +36,12 @@ loader.addEventListener("error", (evt) => {
     console.error(`❌ Failed to load: ${evt.data.src}`);
 });
 
-loader.addEventListener("complete", (evt) => {
+loader.addEventListener("complete", () => {
     console.log("✅ All assets loaded successfully.");
 
     const lib = AdobeAn.getComposition(lib.properties.id).getLibrary();
     const ss = AdobeAn.getComposition(lib.properties.id).getSpriteSheet();
-    const queue = evt.target;
+    const queue = loader;
 
     // Register spritesheets if metadata exists
     const ssMetadata = lib.ssMetadata || [];
@@ -57,13 +58,20 @@ loader.addEventListener("complete", (evt) => {
         }
     }
 
-    // Initialize animation
-    const exportRoot = new lib.oliTEST();
-    const stage = new lib.Stage(canvas);
+    // ✅ TEST: Add image directly to the canvas
+    const stage = new createjs.Stage(canvas);
 
-    stage.enableMouseOver();
+    if (img["cerberus_high_inv"]) {
+        const bitmap = new createjs.Bitmap(img["cerberus_high_inv"]);
+        bitmap.x = 100;
+        bitmap.y = 100;
+        stage.addChild(bitmap);
+        stage.update(); // Force redraw
+        console.log("✅ Bitmap added to stage");
+    } else {
+        console.error("❌ Failed to create bitmap");
+    }
 
-    stage.addChild(exportRoot);
     createjs.Ticker.framerate = lib.properties.fps;
     createjs.Ticker.addEventListener("tick", stage);
 
