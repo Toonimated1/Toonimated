@@ -1,37 +1,25 @@
 /*******************************************************
- * VERSION 7
- * No Animate, purely CreateJS for images
+ * VERSION 8
+ * Spritesheet Approach (Requires re-export from Animate)
  ******************************************************/
-window.addEventListener("DOMContentLoaded", () => {
-  // 1) Create the stage
-  const stage = new createjs.Stage("myCanvas");
-
-  // 2) Load images
-  const queue = new createjs.LoadQueue();
-  queue.setCrossOrigin("anonymous");
-  queue.on("complete", handleComplete);
-  queue.loadManifest([
-    {
-      id: "cerberus",
-      src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png"
-    },
-    {
-      id: "oliver",
-      src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png"
-    }
-  ]);
-
-  function handleComplete() {
-    const cerb = new createjs.Bitmap(queue.getResult("cerberus"));
-    cerb.x = 50;
-    cerb.y = 50;
-    stage.addChild(cerb);
-
-    const oli = new createjs.Bitmap(queue.getResult("oliver"));
-    oli.x = 300;
-    oli.y = 100;
-    stage.addChild(oli);
-
-    stage.update();
+document.addEventListener("DOMContentLoaded", () => {
+  // The composition ID must match the one used in your re-exported file
+  const comp = AdobeAn.getComposition("YOUR_COMPOSITION_ID_HERE");
+  if (!comp) {
+    console.error("Composition not found!");
+    return;
   }
+  const lib = comp.getLibrary();
+  const exportRoot = new lib.MyExportedRoot(); // your root symbol
+  const stage = new lib.Stage(document.getElementById("canvas"));
+
+  stage.addChild(exportRoot);
+  createjs.Ticker.framerate = lib.properties.fps;
+  createjs.Ticker.addEventListener("tick", stage);
+
+  AdobeAn.makeResponsive(false, 'both', false, 1, [
+    document.getElementById("canvas"),
+    document.getElementById("animation_container")
+  ]);
+  AdobeAn.compositionLoaded(lib.properties.id);
 });
