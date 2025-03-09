@@ -6,19 +6,24 @@ lib.properties = {
     color: "#000000",
     opacity: 1.00,
     manifest: [
-        {src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png", id:"cerberus_high_inv"},
-        {src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png", id:"Oliver_expressions_concerned_talk"}
+        {
+            src: "https://cors-anywhere.herokuapp.com/https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png",
+            id: "cerberus_high_inv"
+        },
+        {
+            src: "https://cors-anywhere.herokuapp.com/https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png",
+            id: "Oliver_expressions_concerned_talk"
+        }
     ],
     preloads: []
 };
 
-// Define img[] to store the loaded images
-const img = {};
+const img = {}; // Store loaded images
 
-// Load the assets
 const loader = new createjs.LoadQueue(false);
 loader.addEventListener("fileload", (evt) => {
     if (evt.item.type === "image") {
+        console.log(`Loaded: ${evt.item.src}`); // Debugging line
         img[evt.item.id] = evt.result;
     }
 });
@@ -28,25 +33,26 @@ loader.addEventListener("complete", (evt) => {
     const ss = AdobeAn.getComposition(lib.properties.id).getSpriteSheet();
     const queue = evt.target;
 
-    // Register spritesheets (check if metadata exists)
+    // Register spritesheets if metadata exists
     const ssMetadata = lib.ssMetadata || [];
     console.log("ssMetadata:", ssMetadata);
 
     for (let i = 0; i < ssMetadata.length; i++) {
-        if (queue.getResult(ssMetadata[i].name)) {
-            ss[ssMetadata[i].name] = new createjs.SpriteSheet({
-                images: [queue.getResult(ssMetadata[i].name)],
-                frames: ssMetadata[i].frames
+        const metadata = ssMetadata[i];
+        if (queue.getResult(metadata.name)) {
+            ss[metadata.name] = new createjs.SpriteSheet({
+                images: [queue.getResult(metadata.name)],
+                frames: metadata.frames
             });
+            console.log(`Registered: ${metadata.name}`);
         }
     }
 
-    // Create and display the animation
+    // Initialize the animation
     const exportRoot = new lib.oliTEST();
     const stage = new lib.Stage(canvas);
 
     stage.enableMouseOver();
-
     stage.addChild(exportRoot);
     createjs.Ticker.framerate = lib.properties.fps;
     createjs.Ticker.addEventListener("tick", stage);
@@ -55,5 +61,5 @@ loader.addEventListener("complete", (evt) => {
     AdobeAn.compositionLoaded(lib.properties.id);
 });
 
-// Load manifest
+// Start loading assets
 loader.loadManifest(lib.properties.manifest);
