@@ -7,10 +7,13 @@ lib.properties = {
     opacity: 1.00,
     manifest: [
         {src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png", id:"cerberus_high_inv"},
-        {src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@0a82c91d73f68f491980f8c4729c2bd82dbc3a98/images/Oliver_expressions_concerned_talk.png", id:"Oliver_expressions_concerned_talk"}
+        {src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png", id:"Oliver_expressions_concerned_talk"}
     ],
     preloads: []
 };
+
+// Define img[] to store the loaded images
+const img = {};
 
 // Load the assets
 const loader = new createjs.LoadQueue(false);
@@ -19,20 +22,26 @@ loader.addEventListener("fileload", (evt) => {
         img[evt.item.id] = evt.result;
     }
 });
+
 loader.addEventListener("complete", (evt) => {
     const lib = AdobeAn.getComposition(lib.properties.id).getLibrary();
     const ss = AdobeAn.getComposition(lib.properties.id).getSpriteSheet();
     const queue = evt.target;
 
-    // Register spritesheets
-    const ssMetadata = lib.ssMetadata;
+    // Register spritesheets (check if metadata exists)
+    const ssMetadata = lib.ssMetadata || [];
+    console.log("ssMetadata:", ssMetadata);
+
     for (let i = 0; i < ssMetadata.length; i++) {
-        ss[ssMetadata[i].name] = new createjs.SpriteSheet({
-            images: [queue.getResult(ssMetadata[i].name)],
-            frames: ssMetadata[i].frames
-        });
+        if (queue.getResult(ssMetadata[i].name)) {
+            ss[ssMetadata[i].name] = new createjs.SpriteSheet({
+                images: [queue.getResult(ssMetadata[i].name)],
+                frames: ssMetadata[i].frames
+            });
+        }
     }
 
+    // Create and display the animation
     const exportRoot = new lib.oliTEST();
     const stage = new lib.Stage(canvas);
 
@@ -46,4 +55,5 @@ loader.addEventListener("complete", (evt) => {
     AdobeAn.compositionLoaded(lib.properties.id);
 });
 
+// Load manifest
 loader.loadManifest(lib.properties.manifest);
