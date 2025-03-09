@@ -1,19 +1,20 @@
 /*******************************************************
- * VERSION 4
- * Inline Everything
+ * VERSION 5
+ * Must be served from a local/remote web server
  ******************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  // Animate composition
   const comp = AdobeAn.getComposition("AA7EF674FD3F4E65AA08A1F0429652EC");
-  if (!comp) return console.error("Composition not found.");
-
+  if(!comp) {
+    console.error("Missing Animate composition");
+    return;
+  }
   const lib = comp.getLibrary();
-  const exportRoot = new lib.oliTEST();
   const stage = new lib.Stage(document.getElementById("canvas"));
-  
+  const exportRoot = new lib.oliTEST();
   stage.addChild(exportRoot);
+
   createjs.Ticker.framerate = lib.properties.fps;
-  createjs.Ticker.on("tick", stage);
+  createjs.Ticker.addEventListener("tick", stage);
 
   AdobeAn.makeResponsive(false, 'both', false, 1, [
     document.getElementById("canvas"),
@@ -23,10 +24,22 @@ document.addEventListener("DOMContentLoaded", () => {
   AdobeAn.compositionLoaded(lib.properties.id);
 
   // Load images
-  const queue = new createjs.LoadQueue();
-  queue.setCrossOrigin("anonymous");
-  queue.on("complete", handleComplete, this);
-  queue.loadManifest([
+  const loader = new createjs.LoadQueue();
+  loader.setCrossOrigin("anonymous");
+  loader.addEventListener("complete", () => {
+    console.log("Images loaded successfully.");
+    const bmpCerb = new createjs.Bitmap(loader.getResult("cerberus"));
+    bmpCerb.x = 50; bmpCerb.y = 50;
+    stage.addChild(bmpCerb);
+
+    const bmpOli = new createjs.Bitmap(loader.getResult("oliver"));
+    bmpOli.x = 300; bmpOli.y = 100;
+    stage.addChild(bmpOli);
+
+    stage.update();
+  });
+
+  loader.loadManifest([
     {
       id: "cerberus",
       src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/cerberus_high_inv.png"
@@ -36,16 +49,4 @@ document.addEventListener("DOMContentLoaded", () => {
       src: "https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/images/Oliver_expressions_concerned_talk.png"
     }
   ]);
-
-  function handleComplete() {
-    const bmp1 = new createjs.Bitmap(queue.getResult("cerberus"));
-    bmp1.x = 50;  bmp1.y = 50;
-    stage.addChild(bmp1);
-
-    const bmp2 = new createjs.Bitmap(queue.getResult("oliver"));
-    bmp2.x = 300; bmp2.y = 100;
-    stage.addChild(bmp2);
-
-    stage.update();
-  }
 });
