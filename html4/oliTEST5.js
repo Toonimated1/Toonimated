@@ -352,7 +352,8 @@ lib.properties = {
 	color: "#000000",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/oliTEST5_atlas_1.png", id:"oliTEST5_atlas_1"}
+		{src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/html4/images/oliTEST5_atlas_1.png
+", id:"oliTEST5_atlas_1"}
 	],
 	preloads: []
 };
