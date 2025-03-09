@@ -202,11 +202,11 @@ if (reversed == null) { reversed = false; }
 		offCanvas.height = retroHeight;
 		var offCtx = offCanvas.getContext("2d");
 		
-		// [B] 32-color palette => 2 bits for R, 1 bit for G, 2 bits for B (example)
+		// [B] 32-color palette => 2 bits for R, 1 bit for G, 2 bits for B
 		var palette32 = [];
-		for (var rBits = 0; rBits < 4; rBits++) {     // 0..3
-		  for (var gBits = 0; gBits < 2; gBits++) {   // 0..1
-		    for (var bBits = 0; bBits < 4; bBits++) { // 0..3
+		for (var rBits = 0; rBits < 4; rBits++) {
+		  for (var gBits = 0; gBits < 2; gBits++) {
+		    for (var bBits = 0; bBits < 4; bBits++) {
 		      var rVal = Math.round((rBits / 3) * 255);
 		      var gVal = Math.round((gBits / 1) * 255);
 		      var bVal = Math.round((bBits / 3) * 255);
@@ -344,8 +344,14 @@ lib.properties = {
 	color: "#000000",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/cerberus_high_inv.png?1741549204048", id:"cerberus_high_inv"},
-		{src:"images/Oliver_expressions_concerned_talk.png?1741549204048", id:"Oliver_expressions_concerned_talk"}
+		{
+			src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/cerberus_high_inv.png",
+			id:"cerberus_high_inv"
+		},
+		{
+			src:"https://cdn.jsdelivr.net/gh/Toonimated1/Toonimated@main/Oliver_expressions_concerned_talk.png",
+			id:"Oliver_expressions_concerned_talk"
+		}
 	],
 	preloads: []
 };
@@ -361,12 +367,25 @@ lib.properties = {
 p.setAutoPlay = function(autoPlay) {
 	this.tickEnabled = autoPlay;
 }
-p.play = function() { this.tickEnabled = true; this.getChildAt(0).gotoAndPlay(this.getTimelinePosition()) }
-p.stop = function(ms) { if(ms) this.seek(ms); this.tickEnabled = false; }
-p.seek = function(ms) { this.tickEnabled = true; this.getChildAt(0).gotoAndStop(lib.properties.fps * ms / 1000); }
-p.getDuration = function() { return this.getChildAt(0).totalFrames / lib.properties.fps * 1000; }
+p.play = function() {
+	this.tickEnabled = true;
+	this.getChildAt(0).gotoAndPlay(this.getTimelinePosition())
+}
+p.stop = function(ms) {
+	if(ms) this.seek(ms);
+	this.tickEnabled = false;
+}
+p.seek = function(ms) {
+	this.tickEnabled = true;
+	this.getChildAt(0).gotoAndStop(lib.properties.fps * ms / 1000);
+}
+p.getDuration = function() {
+	return this.getChildAt(0).totalFrames / lib.properties.fps * 1000;
+}
 
-p.getTimelinePosition = function() { return this.getChildAt(0).currentFrame / lib.properties.fps * 1000; }
+p.getTimelinePosition = function() {
+	return this.getChildAt(0).currentFrame / lib.properties.fps * 1000;
+}
 
 an.bootcompsLoaded = an.bootcompsLoaded || [];
 if(!an.bootstrapListeners) {
@@ -462,7 +481,6 @@ an.handleFilterCache = function(event) {
 		}
 	}
 }
-
 
 })(createjs = createjs||{}, AdobeAn = AdobeAn||{});
 var createjs, AdobeAn;
